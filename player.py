@@ -13,10 +13,11 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()   
         self.x_pos = 0
         self.y_pos = 0
-        self.old_x = 200
-        self.old_y = 200
+        self.old_x = x
+        self.old_y = y
         self.ang = 0
         self.vel = 0        
+        self.last_not_colliding = [self.old_x, self.old_y]
         self.disconnected = False
         self.encoded_changes = {}
 
@@ -37,13 +38,13 @@ class Player(pygame.sprite.Sprite):
     
     def turn(self, keys):
         if keys[pygame.K_a]:
-            self.ang += 5
+            self.ang += 8
         elif keys[pygame.K_d]:
-            self.ang -= 5      
+            self.ang -= 8     
         self.encoded_changes["ang"] = self.ang
 
 
-    def move(self):
+    def move(self, walls):
         keys = pygame.key.get_pressed()
         self.speed(keys)
         self.turn(keys)
@@ -58,11 +59,7 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.transform.rotate(self.image_clean, self.ang)
         self.rect = self.image.get_rect()
 
-        self.update()
-
-    def set_coords(self, x, y):
-        self.rect.centerx = x
-        self.rect.centery = y     
+        self.update(walls)
 
     def shoot(self):
         print("x y ({}, {})".format(self.rect.centerx, self.rect.centery))
@@ -70,6 +67,26 @@ class Player(pygame.sprite.Sprite):
         return bullet       
 
 
-    def update(self):        
-        self.set_coords(self.old_x + self.x_pos, self.old_y - self.y_pos)        
+    def update(self, walls):
+        self.rect.centerx = self.old_x + self.x_pos
+        self.rect.centery = self.old_y - self.y_pos
+        wall_hit_list = pygame.sprite.spritecollide(self, walls, False)        
+        if len(wall_hit_list) == 0:
+            self.last_not_colliding = [self.rect.centerx, self.rect.centery]
+        for wall in wall_hit_list:
+            self.rect.centerx = self.last_not_colliding[0]
+            self.rect.centery = self.last_not_colliding[1]
+            self.old_x = self.last_not_colliding[0]
+            self.old_y = self.last_not_colliding[1]
+            # if self.x_pos > 0:                
+            # elif self.x_pos < 0 and self.rect.left > wall.rect.right:
+            #     self.rect.left = wall.rect.right
+
+        # wall_hit_list = pygame.sprite.spritecollide(self, walls, False)     
+        # for wall in wall_hit_list:
+        #     self.rect.centery = self.old_y
+        #     if self.y_pos > 0 and self.rect.bottom < wall.rect.top:
+        #         self.rect.bottom = wall.rect.top
+        #     elif self.y_pos < 0 and self.rect.top < wall.rect.bottom:
+        #         self.rect.top = wall.rect.bottom   
         

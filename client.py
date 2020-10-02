@@ -4,22 +4,40 @@
 import pygame
 from network import Network
 from player import Player
+from wall import Wall
+from level_interpreter import *
 import globals
 
 pygame.init()
-width = 500
-height = 500
+width = 800
+height = 800
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Online Tank Game")
 
 all_sprites_list = pygame.sprite.Group()
 
 players_list = pygame.sprite.Group()
+walls_list = pygame.sprite.Group()
 bullets_list = pygame.sprite.Group()
 
-player = Player("red", 100, 100)
-player.set_coords(200, 300)
+player = Player("red", 0, 0)
 
+level = """
++ +-+-+-+-+-+
+|     |     |
++-+-+ + +-+ +
+|     | |   |
++ +-+-+ + +-+
+| |     | |  
++ +-+-+ + + +
+|       |   |
++-+-+-+-+-+-+
+"""
+walls = level_interpreter(level)
+walls_list.add(walls)
+
+# walls_list.add(Wall(200, 200, 10, 100))
+# walls_list.add(Wall(200, 200, 100, 10))
 players_list.add(player)
 
 clock = pygame.time.Clock()
@@ -27,6 +45,7 @@ clock = pygame.time.Clock()
 def redrawWindow(screen,new_players):
     screen.fill((255,255,255))
     # all_sprites_list.draw(screen)
+    walls_list.draw(screen)
     bullets_list.draw(screen)
     players_list.draw(screen)
     pygame.display.flip()
@@ -41,15 +60,16 @@ def main():
                 run=False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    bad_move.play()
+                    # bad_move.play()
                     bullet = player.shoot()
                     all_sprites_list.add(bullet)
                     bullets_list.add(bullet)        
 
-        all_sprites_list.update()
-        player.update()
+        # all_sprites_list.update()
+        bullets_list.update(walls_list)
+        player.update(walls_list)
 
-        player.move()
+        player.move(walls_list)
         redrawWindow(screen, [player])
         clock.tick(60)
         
