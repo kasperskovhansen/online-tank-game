@@ -1,5 +1,7 @@
 import pygame
+from bullet import Bullet
 from math import cos, sin, pi
+import globals
 
 class Player(pygame.sprite.Sprite):
     def __init__(self, color, x, y):
@@ -60,9 +62,14 @@ class Player(pygame.sprite.Sprite):
 
     def set_coords(self, x, y):
         self.rect.centerx = x
-        self.rect.centery = y        
+        self.rect.centery = y     
+
+    def shoot(self):
+        print("x y ({}, {})".format(self.rect.centerx, self.rect.centery))
+        bullet = Bullet(self.rect.centerx + cos(self.ang*pi/180) * 25, self.rect.centery - + sin(self.ang*pi/180) * 25, self.ang)
+        return bullet       
 
 
-    def update(self):
+    def update(self):        
         self.set_coords(self.old_x + self.x_pos, self.old_y - self.y_pos)        
         
