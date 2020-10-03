@@ -1,4 +1,4 @@
-from wall import Wall
+from sprites.wall import Wall
 
 def level_interpreter(level):
     # List of levels

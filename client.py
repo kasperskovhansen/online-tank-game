@@ -1,8 +1,8 @@
 import pygame
-from network import Network
-from player import Player
-from wall import Wall
-from level_interpreter import level_interpreter
+from utils.network import Network
+from utils.level_interpreter import level_interpreter
+from sprites.player import Player
+from sprites.wall import Wall
 
 # Setup
 pygame.init()

@@ -1,5 +1,5 @@
 import pygame
-from bullet import Bullet
+from sprites.bullet import Bullet
 from math import cos, sin, pi
 
 # Load sound effects
