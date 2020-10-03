@@ -54,6 +54,9 @@ class Bullet(pygame.sprite.Sprite):
                 firing_seq_over = False
             if not self.firing:
                 player.hit_by = self.tank_id
+                for player_hitting in players_list:
+                    if player_hitting.tank_id == self.tank_id:
+                        player_hitting.num_bullets += 1
                 self.kill()
         if self.firing and firing_seq_over:
             self.firing = False

@@ -9,10 +9,16 @@ bad_move.set_volume(0.5)
 
 class Player(pygame.sprite.Sprite):
     # Setup
-    def __init__(self, color, x, y):
+    def __init__(self, color, x, y, tank_id):
         super().__init__()        
         if color == "red":
             self.image = pygame.image.load("assets/red_tank.png") 
+        elif color == "blue":
+            self.image = pygame.image.load("assets/blue_tank.png") 
+        elif color == "yellow":
+            self.image = pygame.image.load("assets/yellow_tank.png") 
+        elif color == "green":
+            self.image = pygame.image.load("assets/green_tank.png") 
         self.image = pygame.transform.rotate(self.image, 0)     
         self.image_clean = self.image.copy()  
         self.rect = self.image.get_rect()   
@@ -26,7 +32,7 @@ class Player(pygame.sprite.Sprite):
         self.disconnected = False
         self.encoded_changes = {}
         self.mask = pygame.mask.from_surface(self.image.convert_alpha())
-        self.tank_id = 0
+        self.tank_id = tank_id
         self.hit_by = None
         self.num_bullets = 5
 
@@ -37,22 +43,38 @@ class Player(pygame.sprite.Sprite):
 
     # Change tank moving speed
     def speed(self, keys):
-        if keys[pygame.K_w]:
-            self.vel = 4
-        elif keys[pygame.K_s]:
-            self.vel = -2
-        else:
-            if not self.vel:
-                return
-            self.vel = 0
+        if self.tank_id == 0:
+            if keys[pygame.K_w]:
+                self.vel = 4
+            elif keys[pygame.K_s]:
+                self.vel = -2
+            else:
+                if not self.vel:
+                    return
+                self.vel = 0
+        elif self.tank_id == 1:
+            if keys[pygame.K_UP]:
+                self.vel = 4
+            elif keys[pygame.K_DOWN]:
+                self.vel = -2
+            else:
+                if not self.vel:
+                    return
+                self.vel = 0
         self.encoded_changes["vel"] = self.vel
     
     # Change tank direction
     def turn(self, keys):
-        if keys[pygame.K_a]:
-            self.ang += 5
-        elif keys[pygame.K_d]:
-            self.ang -= 5     
+        if self.tank_id == 0:
+            if keys[pygame.K_a]:
+                self.ang += 5
+            elif keys[pygame.K_d]:
+                self.ang -= 5     
+        elif self.tank_id == 1:
+            if keys[pygame.K_LEFT]:
+                self.ang += 5
+            elif keys[pygame.K_RIGHT]:
+                self.ang -= 5     
         self.encoded_changes["ang"] = self.ang
 
     # Move player to new position and update afterwards
@@ -85,7 +107,7 @@ class Player(pygame.sprite.Sprite):
         # Check if hit by a bullet
         if self.hit_by != None:
             print("Player: {} hit by player: {}".format(self.tank_id, self.hit_by))
-            bad_move.play()
+            # bad_move.play()
             self.hit_by = None
 
         # Move tank

@@ -23,11 +23,13 @@ walls_list.add(walls)
 # Load audio and start background music
 pygame.mixer.music.load('sounds/rabadab.wav')
 pygame.mixer.music.set_volume(0.6)
-pygame.mixer.music.play(-1)
+# pygame.mixer.music.play(-1)
 
 # Initial player
-player = Player("red", 0, 0)
-players_list.add(player)
+player1 = Player("red", 0, 0, 0)
+players_list.add(player1)
+player2 = Player("blue", 0, 0, 1)
+players_list.add(player2)
 
 # Draw
 def redraw_window(screen,new_players):
@@ -48,16 +50,21 @@ def main():
                 run=False
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    bullet = player.shoot()
+                    bullet = player1.shoot()
+                    if bullet:
+                        bullets_list.add(bullet)        
+                elif event.key == pygame.K_m:
+                    bullet = player2.shoot()
                     if bullet:
                         bullets_list.add(bullet)        
 
         # Move and update players and bullets
-        player.move(walls_list, bullets_list)
+        player1.move(walls_list, bullets_list)
+        player2.move(walls_list, bullets_list)
         bullets_list.update(walls_list, players_list)
 
         # Draw screen with new changes
-        redraw_window(screen, [player])
+        redraw_window(screen, [player1, player2])
         clock.tick(60)
   
 # Start main loop
