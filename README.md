@@ -6,16 +6,17 @@ Online Tank Game is a game where players can connect to the same server and play
 
 ## Installation
 
-No installation is required.
+This project requires ```pygame```. To install run:\
+```$ pip install pygame```
 
 ## Usage
 
 ### Host:
 Spin up a server by running ```server.py``` from the host machine:\
-```python3 server.py```
+```$ python3 server.py```
 ### Play:
 Run ```client.py``` from any machine with internet access to connect:\
-```python3 client.py```
+```$ python3 client.py```
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
