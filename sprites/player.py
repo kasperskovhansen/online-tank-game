@@ -26,7 +26,6 @@ class Player(pygame.sprite.Sprite):
             self.tank_image = pygame.image.load("assets/yellow_tank.png") 
         elif color == "green":
             self.tank_image = pygame.image.load("assets/green_tank.png") 
-        print(self.tank_image)
 
         # Explode frames
         self.explode_frames = []
@@ -35,11 +34,9 @@ class Player(pygame.sprite.Sprite):
             self.explode_frames.append(pygame.image.load("assets/explosion/" + str(i+1) + ".png"))
         self.anim_count = 0
         self.anim_frame = 0
-        print(self.explode_frames)
 
         # Setup
         self.image = pygame.transform.rotate(self.tank_image, 0)     
-        print(self.image)
         self.image_clean = self.image.copy()  
         self.rect = self.image.get_rect()   
         self.x_pos = 0
@@ -59,6 +56,7 @@ class Player(pygame.sprite.Sprite):
         self.can_move = True
         self.explode_ticks = None
         self.dying = False
+        self.points = 0
 
     # Network multiplayer stuff
     def parse_changes(self, encoded_changes):
@@ -69,18 +67,18 @@ class Player(pygame.sprite.Sprite):
     def speed(self, keys):
         if self.tank_id == 0:
             if keys[pygame.K_w]:
-                self.vel = 4
+                self.vel = 6
             elif keys[pygame.K_s]:
-                self.vel = -2
+                self.vel = -4
             else:
                 if not self.vel:
                     return
                 self.vel = 0
         elif self.tank_id == 1:
             if keys[pygame.K_UP]:
-                self.vel = 4
+                self.vel = 6
             elif keys[pygame.K_DOWN]:
-                self.vel = -2
+                self.vel = -4
             else:
                 if not self.vel:
                     return
@@ -91,14 +89,14 @@ class Player(pygame.sprite.Sprite):
     def turn(self, keys):
         if self.tank_id == 0:
             if keys[pygame.K_a]:
-                self.ang += 5
+                self.ang += 9
             elif keys[pygame.K_d]:
-                self.ang -= 5     
+                self.ang -= 9     
         elif self.tank_id == 1:
             if keys[pygame.K_LEFT]:
-                self.ang += 5
+                self.ang += 9
             elif keys[pygame.K_RIGHT]:
-                self.ang -= 5     
+                self.ang -= 9    
         self.encoded_changes["ang"] = self.ang
 
     # Move player to new position and update afterwards
@@ -121,8 +119,10 @@ class Player(pygame.sprite.Sprite):
 
     # Fire a new bullet
     def shoot(self):
+        if self.dying:
+            return
         # Only fire if player has not fired all rounds
-        if self.num_bullets > 0 and self.hit_by == None:
+        elif self.num_bullets > 0 and self.hit_by == None:
             self.num_bullets -= 1
             bullet = Bullet(self.rect.centerx + cos(self.ang*pi/180) * 15, self.rect.centery - + sin(self.ang*pi/180) * 15, self.ang, self.tank_id)
             return bullet       
@@ -131,11 +131,9 @@ class Player(pygame.sprite.Sprite):
 
     def explode(self):       
         if self.dying == False:
-            print("play bad_move")
             hee_hee.play()
         self.dying = True 
         if self.anim_count == 0:
-            print("self.anim_count == 0")
             self.image = self.explode_frames[0]
             self.anim_count += 1
             self.explode_ticks = pygame.time.get_ticks()            
@@ -143,9 +141,6 @@ class Player(pygame.sprite.Sprite):
             if self.anim_count == self.frames -1:
                 self.kill()
                 self.hit_by = None
-                self.dying = False
-            print("self.anim_count != 0")            
-            print(self.anim_count)
             self.explode_ticks = pygame.time.get_ticks()
             self.image = self.explode_frames[self.anim_count]  
             self.anim_count += 1        

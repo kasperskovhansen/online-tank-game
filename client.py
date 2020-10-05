@@ -20,9 +20,14 @@ class Game():
         self.bullets_list = None
         self.power_up_list = None
 
+        self.game_over_font = pygame.font.SysFont("monospace", 20)
+
         # Players
         self.player1 = None
         self.player2 = None
+        self.points = {}
+        self.points[0] = 0
+        self.points[1] = 0
 
         # Level
         self.level = None
@@ -37,6 +42,13 @@ class Game():
         self.main()
 
     def reset(self):
+        if self.players_list:
+            for player in self.players_list:
+                if not self.points[player.tank_id]:                    
+                    self.points[player.tank_id] = 1
+                else: 
+                    self.points[player.tank_id] += 1
+
         # Load level
         self.level = Level()
 
@@ -63,6 +75,7 @@ class Game():
         self.power_up_list.draw(self.screen)    
         self.bullets_list.draw(self.screen)
         self.players_list.draw(self.screen)
+        screen.blit(self.game_over_font.render("P1: " + str(self.points[0]) + " P2: " + str(self.points[1]), 0, (10,10,10)), (50,20))
         pygame.display.flip()
 
     # Main loop
