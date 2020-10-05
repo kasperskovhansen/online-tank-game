@@ -191,6 +191,7 @@ class Player(pygame.sprite.Sprite):
         if self.play_death_sound_step == "play_jeg_tror_såmænd":
             self.play_death_sound_step = "play_jeg_tror_såmænd_done"
             pygame.mixer.music.load('sounds/jeg_tror_såmænd.wav')
+            pygame.mixer.music.set_volume(1)
             pygame.mixer.music.set_endevent( pygame.USEREVENT )
             pygame.mixer.music.play(0)
             return {"tank_id": self.tank_id, "next_step": "play_username"}
@@ -198,9 +199,11 @@ class Player(pygame.sprite.Sprite):
             self.play_death_sound_step = "play_username_done"
             pygame.mixer.music.load('sounds/usernames/' + str(self.username) + '.mp3')
             pygame.mixer.music.set_endevent( pygame.USEREVENT )
+            pygame.mixer.music.set_volume(0.7)
             pygame.mixer.music.play(0)
             return {"tank_id": self.tank_id, "next_step": "play_faktisk_lige_er_død"}
         elif self.play_death_sound_step == "play_faktisk_lige_er_død":
+            faktisk_lige_er_død.set_volume(1)
             faktisk_lige_er_død.play(0)
             self.play_death_sound_step = None
             self.kill()

@@ -36,9 +36,9 @@ class Game():
         self.game_over_timer = None
 
         # Load audio and start background music
-        pygame.mixer.music.load('sounds/rabadab.wav')
-        pygame.mixer.music.set_volume(0.6)
-        # pygame.mixer.music.play(-1)
+        background_music = pygame.mixer.Sound('sounds/rabadab.wav')
+        background_music.set_volume(0.1)
+        background_music.play(-1)
         self.reset()
         # Start main loop
         self.main()
