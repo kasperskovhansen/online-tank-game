@@ -29,6 +29,8 @@ class Game():
         self.points[0] = 0
         self.points[1] = 0
 
+        self.tank_id_death_sound = None
+
         # Level
         self.level = None
         self.game_over_timer = None
@@ -36,7 +38,7 @@ class Game():
         # Load audio and start background music
         pygame.mixer.music.load('sounds/rabadab.wav')
         pygame.mixer.music.set_volume(0.6)
-        pygame.mixer.music.play(-1)
+        # pygame.mixer.music.play(-1)
         self.reset()
         # Start main loop
         self.main()
@@ -44,6 +46,8 @@ class Game():
     def reset(self):
         if self.players_list:
             for player in self.players_list:
+                if not player.visible:
+                    continue
                 if not self.points[player.tank_id]:                    
                     self.points[player.tank_id] = 1
                 else: 
@@ -61,11 +65,11 @@ class Game():
         # Players
         free_spot = self.level.get_free_spot(False)
         if free_spot:
-            self.player1 = Player("red", *free_spot, 0)
+            self.player1 = Player("red", *free_spot, 0, "Kasp262e")
             self.players_list.add(self.player1)
         free_spot = self.level.get_free_spot(False)
         if free_spot:
-            self.player2 = Player("blue", *free_spot, 1)
+            self.player2 = Player("blue", *free_spot, 1, "Mads Trabandt")
             self.players_list.add(self.player2)
 
     # Draw
@@ -74,7 +78,10 @@ class Game():
         self.walls_list.draw(self.screen)    
         self.power_up_list.draw(self.screen)    
         self.bullets_list.draw(self.screen)
-        self.players_list.draw(self.screen)
+        for player in self.players_list:
+            if player.visible:
+                player.draw(self.screen)
+        # self.players_list.draw(self.screen)
         screen.blit(self.game_over_font.render("P1: " + str(self.points[0]) + " P2: " + str(self.points[1]), 0, (10,10,10)), (50,20))
         pygame.display.flip()
 
@@ -88,6 +95,10 @@ class Game():
             for event in pygame.event.get():
                 if event.type==pygame.QUIT:
                     run=False
+                elif event.type == pygame.USEREVENT:
+                    for player in self.players_list:
+                        if player.tank_id == self.tank_id_death_sound["tank_id"]:
+                            player.play_death_sound_step = self.tank_id_death_sound["next_step"]       
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         bullet = self.player1.shoot()
@@ -105,15 +116,18 @@ class Game():
                     power_up_ticks = pygame.time.get_ticks()
 
             # Move and update players and bullets
-            self.player1.move(self.walls_list, self.bullets_list)
-            self.player2.move(self.walls_list, self.bullets_list)
+            for player in self.players_list:
+                update_message = player.move(self.walls_list, self.bullets_list)
+                if not update_message == None:                    
+                    self.tank_id_death_sound = update_message
+                    
             self.bullets_list.update(self.walls_list, self.players_list)
 
             if len(self.players_list) <= 1:
                 if self.game_over_timer == None:
                     print("game over")
                     self.game_over_timer = pygame.time.get_ticks()
-                elif pygame.time.get_ticks() - self.game_over_timer > 3000:
+                elif pygame.time.get_ticks() - self.game_over_timer > 1000:
                     self.game_over_timer = None
                     self.reset()
 

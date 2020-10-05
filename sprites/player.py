@@ -2,6 +2,7 @@ import pygame
 from sprites.bullet import Bullet
 from math import cos, sin, pi
 import random
+from utils.download_audio import download_audio
 
 # Load sound effects
 pygame.init()
@@ -11,9 +12,14 @@ bad_move.set_volume(0.5)
 hee_hee = pygame.mixer.Sound('sounds/hee_hee.wav')
 hee_hee.set_volume(1)
 
+jeg_tror_såmænd = pygame.mixer.Sound('sounds/jeg_tror_såmænd.wav')
+hee_hee.set_volume(1)
+faktisk_lige_er_død = pygame.mixer.Sound('sounds/faktisk_lige_er_død.wav')
+faktisk_lige_er_død.set_volume(1)
+
 class Player(pygame.sprite.Sprite):
     # Setup
-    def __init__(self, color, x, y, level_spot, tank_id):
+    def __init__(self, color, x, y, level_spot, tank_id, username):
         super().__init__()       
         self.tank_image = None 
 
@@ -56,7 +62,11 @@ class Player(pygame.sprite.Sprite):
         self.can_move = True
         self.explode_ticks = None
         self.dying = False
-        self.points = 0
+        self.points = 0    
+        self.username = username
+        download_audio(self.username) 
+        self.play_death_sound_step = None
+        self.visible = True
 
     # Network multiplayer stuff
     def parse_changes(self, encoded_changes):
@@ -102,8 +112,7 @@ class Player(pygame.sprite.Sprite):
     # Move player to new position and update afterwards
     def move(self, walls_list, bullets_list):
         if not self.hit_by == None:
-            self.update(walls_list, bullets_list)
-            return
+            return self.update(walls_list, bullets_list)
         keys = pygame.key.get_pressed()
         self.speed(keys)
         self.turn(keys)
@@ -115,7 +124,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image.convert_alpha())
 
-        self.update(walls_list, bullets_list)
+        return self.update(walls_list, bullets_list)
 
     # Fire a new bullet
     def shoot(self):
@@ -130,34 +139,37 @@ class Player(pygame.sprite.Sprite):
             return None
 
     def explode(self):       
+        to_return = None
         if self.dying == False:
-            hee_hee.play()
+            self.play_death_sound_step = "play_jeg_tror_såmænd"
+        if self.play_death_sound_step != None:
+            # hee_hee.play()
+            to_return = self.play_death_sound()
+            
         self.dying = True 
         if self.anim_count == 0:
             self.image = self.explode_frames[0]
             self.anim_count += 1
             self.explode_ticks = pygame.time.get_ticks()            
         elif pygame.time.get_ticks() - self.explode_ticks > 50 and self.anim_count < len(self.explode_frames):
-            if self.anim_count == self.frames -1:
-                self.kill()
+            if self.anim_count >= self.frames -1:
+                self.visible = False
                 self.hit_by = None
-            self.explode_ticks = pygame.time.get_ticks()
-            self.image = self.explode_frames[self.anim_count]  
-            self.anim_count += 1        
+            else:
+                self.explode_ticks = pygame.time.get_ticks()
+                self.image = self.explode_frames[self.anim_count]  
+                self.anim_count += 1        
         self.rect = self.image.get_rect()     
         self.rect.centerx = self.old_x     
         self.rect.centery = self.old_y     
+        return to_return
 
     # Update pos if not hitting a wall or hit by bullet
     def update(self, walls_list, bullets_list):
         # Check if hit by a bullet
-        if self.hit_by != None:
-            self.explode()
-            # print("Player: {} hit by player: {}".format(self.tank_id, self.hit_by))
+        if self.hit_by != None or self.play_death_sound_step != None:
+            return self.explode()
             
-            # self.hit_by = None
-            return
-
         # Move tank
         self.rect.centerx = self.old_x + self.x_pos
         self.rect.centery = self.old_y - self.y_pos             
@@ -171,4 +183,26 @@ class Player(pygame.sprite.Sprite):
             self.rect.centery = self.last_not_colliding[1]
             self.old_x = self.last_not_colliding[0]
             self.old_y = self.last_not_colliding[1]
+
+    def draw(self, screen):
+        screen.blit(self.image, self.rect)
+
+    def play_death_sound(self):
+        if self.play_death_sound_step == "play_jeg_tror_såmænd":
+            self.play_death_sound_step = "play_jeg_tror_såmænd_done"
+            pygame.mixer.music.load('sounds/jeg_tror_såmænd.wav')
+            pygame.mixer.music.set_endevent( pygame.USEREVENT )
+            pygame.mixer.music.play(0)
+            return {"tank_id": self.tank_id, "next_step": "play_username"}
+        elif self.play_death_sound_step == "play_username":
+            self.play_death_sound_step = "play_username_done"
+            pygame.mixer.music.load('sounds/usernames/' + str(self.username) + '.mp3')
+            pygame.mixer.music.set_endevent( pygame.USEREVENT )
+            pygame.mixer.music.play(0)
+            return {"tank_id": self.tank_id, "next_step": "play_faktisk_lige_er_død"}
+        elif self.play_death_sound_step == "play_faktisk_lige_er_død":
+            faktisk_lige_er_død.play(0)
+            self.play_death_sound_step = None
+            self.kill()
+            return None
             

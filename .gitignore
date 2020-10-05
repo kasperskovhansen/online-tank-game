@@ -1,3 +1,7 @@
 /__pycache__
 /*/__pycache__
 .vscode
+
+/sounds/usernames/*
+
+!/sounds/usernames/username_audio.txt
