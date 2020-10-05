@@ -2,7 +2,7 @@
 
 Online Tank Game is a game where players can connect to the same server and play AZ-Tanks against each other.
 
-![image](https://user-images.githubusercontent.com/54172854/94990644-ff776e00-057d-11eb-9720-1fcc471160c3.png)
+![image](https://user-images.githubusercontent.com/54172854/94992523-cbef1080-058a-11eb-997a-b45d9804e36a.png)
 
 ## Installation
 
