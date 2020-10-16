@@ -1,12 +1,14 @@
 import pygame
 from math import cos, sin, pi
+from sprites.power_up import get_type
 import random
 
 class Bullet(pygame.sprite.Sprite):
     # Setup
-    def __init__(self, x, y, ang, tank_id):
+    def __init__(self, x, y, ang, tank_id, power_up):
         super().__init__()        
-        self.image = pygame.Surface((4, 4))
+        self.power_up = power_up   
+        self.image = pygame.Surface((self.power_up["bullet_size"], self.power_up["bullet_size"]))
         self.image.fill((0,0,0))
         self.rect = self.image.get_rect()   
         self.x_pos = 0
@@ -14,12 +16,14 @@ class Bullet(pygame.sprite.Sprite):
         self.old_x = x
         self.old_y = y
         self.ang = ang
-        self.vel = 6
+        self.vel = self.power_up["bullet_speed"]
         self.start_ticks = pygame.time.get_ticks()
         self.last_not_colliding = [self.x_pos, self.y_pos] 
         self.mask = pygame.mask.from_surface(self.image.convert_alpha())
         self.tank_id = tank_id
         self.firing = True
+            
+            
  
     # Set new coordinates
     def set_coords(self, x, y):
@@ -29,11 +33,16 @@ class Bullet(pygame.sprite.Sprite):
     # Update position handling player hits and wall rebounce
     def update(self, walls_list, players_list):
         # Kill if time has run out
-        seconds=(pygame.time.get_ticks()-self.start_ticks)/1000
-        if seconds > 8:
+        if pygame.time.get_ticks() - self.start_ticks > self.power_up["bullet_lifespan"]:
             for player in players_list:
                 if player.tank_id == self.tank_id:
-                    player.num_bullets += 1
+                    if player.power_up["type"] == self.power_up["type"]:
+                        if player.power_up["bullet_refill"] and player.power_up["max_bullets"] - player.power_up["num_bullets"] > 0:
+                            player.power_up["num_bullets"] += 1
+                        elif not player.power_up["bullet_refill"]:
+                            player.power_up["num_bullets_destroyed"] += 1
+                            if player.power_up["num_bullets_destroyed"] == player.power_up["max_bullets"]:
+                                player.power_up = get_type(0)                        
             self.kill()
 
         # Calculate new coords and move

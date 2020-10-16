@@ -12,11 +12,13 @@ class Level():
                         ["+-+-+ + +-+ +   +"],
                         ["|     | |   |   |"],
                         ["+ +-+-+ + +-+-+ +"],
-                        ["| |     | | |   |"],
+                        ["| |       | |   |"],
                         ["+ +-+-+ + + +-+ +"],
                         ["|       |   |   |"],
                         ["+ +-+-+ +-+-+ +-+"],
-                        ["|               |"],
+                        ["|           |   |"],
+                        ["+ +-+-+ +   +-+ +"],
+                        ["|       |       |"],
                         ["+-+-+-+-+-+-+-+-+"]]]
 
         # List of generated walls
@@ -84,3 +86,7 @@ class Level():
                 return self.spots[spot_num][0], self.spots[spot_num][1], spot_num
 
         return False
+
+    def set_free_spot(self, spot_num):
+        self.spots[spot_num][2] = True
+        print(self.spots)
