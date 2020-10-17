@@ -43,6 +43,7 @@ class Player(pygame.sprite.Sprite):
         self.anim_frame = 0
 
         # Setup
+        self.tank_image = pygame.transform.scale(self.tank_image, (15, 10))
         self.image = pygame.transform.rotate(self.tank_image, 0)     
         self.image_clean = self.image.copy()  
         self.rect = self.image.get_rect()   
@@ -80,9 +81,9 @@ class Player(pygame.sprite.Sprite):
     def speed(self, keys):
         if self.tank_id == 0:
             if keys[pygame.K_w]:
-                self.vel = 6
+                self.vel = 4
             elif keys[pygame.K_s]:
-                self.vel = -4
+                self.vel = -3
             else:
                 if not self.vel:
                     return

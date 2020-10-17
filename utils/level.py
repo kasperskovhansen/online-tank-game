@@ -1,4 +1,5 @@
 from sprites.wall import Wall
+from utils.maze_gen import maze_gen
 import random
 
 class Level():
@@ -7,19 +8,19 @@ class Level():
     """
     def __init__(self):
          # List of levels
-        self.levels = [[["+-+-+-+-+-+-+-+-+"],
-                        ["|     |         |"],
-                        ["+-+-+ + +-+ +   +"],
-                        ["|     | |   |   |"],
-                        ["+ +-+-+ + +-+-+ +"],
-                        ["| |       | |   |"],
-                        ["+ +-+-+ + + +-+ +"],
-                        ["|       |   |   |"],
-                        ["+ +-+-+ +-+-+ +-+"],
-                        ["|           |   |"],
-                        ["+ +-+-+ +   +-+ +"],
-                        ["|       |       |"],
-                        ["+-+-+-+-+-+-+-+-+"]]]
+        # self.levels = [[["+-+-+-+-+-+-+-+-+"],
+        #                 ["|     |         |"],
+        #                 ["+-+-+ + +-+ +   +"],
+        #                 ["|     | |   |   |"],
+        #                 ["+ +-+-+ + +-+-+ +"],
+        #                 ["| |       | |   |"],
+        #                 ["+ +-+-+ + + +-+ +"],
+        #                 ["|       |   |   |"],
+        #                 ["+ +-+-+ +-+-+ +-+"],
+        #                 ["|           |   |"],
+        #                 ["+ +-+-+ +   +-+ +"],
+        #                 ["|       |       |"],
+        #                 ["+-+-+-+-+-+-+-+-+"]]]
 
         # List of generated walls
         self.walls = []
@@ -28,22 +29,32 @@ class Level():
         self.spots = []
 
         # Setup dimensions of grid
-        self.w_w = 4
-        self.w_h = 100
+        self.maze_w = random.randint(24, 24)
+        self.maze_h = random.randint(16, 16)
+        self.maze_w = 25
+        self.maze_h = 10
+
+        # Walls
+        self.w_w = 5
+        self.w_h = 40
         self.top_gap = 50
-        self.left_gap = 50
+        self.left_gap = 10
         
         # Load the level
-        self.level = random.randint(0, len(self.levels) -1)
+        # self.level = random.randint(0, len(self.levels) -1)
+        # self.level = 0
+        # self.level = gen_maze()
         self.level_loader()
         
 
     def level_loader(self):
-        level = self.levels[self.level]
+        # level = self.levels[self.level]
+        level = maze_gen(x_cells = self.maze_w, y_cells = self.maze_h, passages = 20)        
 
         line_y = self.top_gap
         for l in range(len(level)):        
             line = level[l][0]
+            print(line)
             # Decide whether row is self.w_w or self.w_h high
             if l % 2 == 0:
                 row_h = self.w_w

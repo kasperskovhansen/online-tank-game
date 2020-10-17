@@ -10,8 +10,8 @@ class Game():
     def __init__(self):
         # Setup
         pygame.init()
-        self.width = 940
-        self.height = 800
+        self.width = 1150
+        self.height = 550
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Online Tank Game")
 
@@ -65,11 +65,11 @@ class Game():
         # Players
         free_spot = self.level.get_free_spot(False)
         if free_spot:
-            self.player1 = Player("red", *free_spot, 0, "Kasp262e")
+            self.player1 = Player("red", *free_spot, 0, "Karo")
             self.players_list.add(self.player1)
         free_spot = self.level.get_free_spot(False)
         if free_spot:
-            self.player2 = Player("blue", *free_spot, 1, "Karo4492")
+            self.player2 = Player("blue", *free_spot, 1, "Kapper")
             self.players_list.add(self.player2)
 
     # Draw
