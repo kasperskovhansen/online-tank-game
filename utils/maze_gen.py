@@ -4,6 +4,9 @@ from datetime import datetime
 start_time = datetime.now()  # Start stopwatch
 
 
+def export_maze(maze):
+    np.savetxt("maze.csv", maze, delimiter=",", fmt='%s')
+
 def directions(maze, pos, check_for=['1'], inverse=True, steps=2):
     # Directions to check for. Move "steps" steps
     dirs_to_check = [[0, steps], [0, -steps], [steps, 0], [-steps, 0]]
@@ -23,7 +26,7 @@ def directions(maze, pos, check_for=['1'], inverse=True, steps=2):
     return dirs
 
 
-def maze_gen(canvas_w=100, canvas_h=100, y_cells=3, x_cells=3, wall_cell_ratio=10, passages=100, entrances = True, stringify=True):
+def maze_gen(canvas_w=100, canvas_h=100, y_cells=3, x_cells=3, wall_cell_ratio=10, passages=100, entrances = False, stringify=True):
     """ Find links """
     maze = np.zeros([y_cells * 2 + 1, x_cells * 2 + 1],
                     dtype=str)  # Setup of empty maze
@@ -87,10 +90,10 @@ def maze_gen(canvas_w=100, canvas_h=100, y_cells=3, x_cells=3, wall_cell_ratio=1
 
     if entrances:  # Create entrances
         hole = randint(1, len(maze) - 1)
-        maze[hole + (hole - 1) % 2][0] = " "
+        maze[hole - (hole - 1) % 2][0] = " "
 
         hole2 = randint(1, len(maze) - 1)
-        maze[hole2 + (hole2 - 1) % 2][len(maze[0]) - 1] = " "
+        maze[hole2 - (hole2 - 1) % 2][len(maze[0]) - 1] = " "
 
     if stringify:  # Return maze
         for row in maze:
@@ -107,4 +110,4 @@ def maze_gen(canvas_w=100, canvas_h=100, y_cells=3, x_cells=3, wall_cell_ratio=1
 #     print(row[0])
 
 # Stop stopwatch and print time
-print("Time: {}".format(datetime.now() - start_time))
+# print("Time: {}".format(datetime.now() - start_time))

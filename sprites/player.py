@@ -43,7 +43,7 @@ class Player(pygame.sprite.Sprite):
         self.anim_frame = 0
 
         # Setup
-        self.tank_image = pygame.transform.scale(self.tank_image, (15, 10))
+        self.tank_image = pygame.transform.scale(self.tank_image, (25, 18))
         self.image = pygame.transform.rotate(self.tank_image, 0)     
         self.image_clean = self.image.copy()  
         self.rect = self.image.get_rect()   
@@ -70,6 +70,7 @@ class Player(pygame.sprite.Sprite):
         download_audio(self.username) 
         self.play_death_sound_step = None
         self.visible = True
+        self.maze_coords = [0,0]
         self.power_up = get_type(0)
 
     # Network multiplayer stuff
@@ -90,9 +91,9 @@ class Player(pygame.sprite.Sprite):
                 self.vel = 0
         elif self.tank_id == 1:
             if keys[pygame.K_UP]:
-                self.vel = 6
+                self.vel = 4
             elif keys[pygame.K_DOWN]:
-                self.vel = -4
+                self.vel = -3
             else:
                 if not self.vel:
                     return
