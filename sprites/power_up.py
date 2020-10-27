@@ -18,6 +18,8 @@ def get_type(power_up_type):
             "bullets_rpm": False,
             "bullets_timer": None,
             "bullets_spread": 0,
+            "fragments": 0,
+            "should_explode": 1,
         },
         1: {
             "type": "bomb",
@@ -32,6 +34,8 @@ def get_type(power_up_type):
             "bullets_rpm": False,
             "bullets_timer": None,
             "bullets_spread": 0,
+            "fragments": 30,
+            "should_explode": 2,
         },
         2: {
             "type": "minigun",
@@ -39,6 +43,7 @@ def get_type(power_up_type):
             "num_bullets_destroyed": 0,
             "can_take_new": False,
             "max_bullets": 10,
+            "bullet_spread": 10,
             "bullet_lifespan": 3000,
             "bullet_refill": False,
             "bullet_size": 2,
@@ -46,6 +51,24 @@ def get_type(power_up_type):
             "bullets_rpm": 400,
             "bullets_timer": None,
             "bullets_spread": 2,
+            "fragments": 0,
+            "should_explode": 1,
+        },
+        3: {
+            "type": "fragment",
+            "num_bullets": 1,
+            "num_bullets_destroyed": 0,
+            "max_bullets": 1,
+            "bullet_spread": 360,
+            "bullet_lifespan": 10000,
+            "bullet_refill": False,
+            "bullet_size": 5,
+            "bullet_speed": 4,
+            "bullets_rpm": 400,
+            "bullets_timer": None,
+            "bullets_spread": 360,
+            "fragments": 0,
+            "should_explode": 1,
         }
     }
     if power_up_type == "all":
@@ -64,8 +87,7 @@ class PowerUp(pygame.sprite.Sprite):
         if get_type(self.type)["type"] == "bomb":
             self.color = (200, 0, 200)
         if get_type(self.type)["type"] == "minigun":
-            self.color = (0, 200, 200)
-        print(self.color)
+            self.color = (0, 200, 200)        
 
         self.image.fill(self.color)
         self.rect = self.image.get_rect()

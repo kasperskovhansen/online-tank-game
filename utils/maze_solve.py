@@ -33,7 +33,7 @@ def directions(maze, pos, check_for=['1'], inverse=True, steps=2):
 def maze_solve(maze, start_pos, end_pos):          
     
     global should_break      
-    if start_pos[0] == None or start_pos[1] == None or end_pos[0] == None or end_pos[1] == None:
+    if start_pos[0] == None or start_pos[1] == None or end_pos[0] == None or end_pos[1] == None or start_pos == end_pos:
         return False
     maze[start_pos[0]][start_pos[1]] = 'O'
     maze[end_pos[0]][end_pos[1]] = 'X'
@@ -91,12 +91,14 @@ def maze_solve(maze, start_pos, end_pos):
             break
 
     steps = []
+    
     for i in range(len(data)):
         curr_row = data[len(data) - i - 1]
         cell = curr_row[idx]
         steps.insert(0, cell[0])   
-        idx = cell[1]    
-    return steps
+        idx = cell[1] 
+       
+    return steps[1:-1]
 
 
 # start_time_gen = datetime.now()  # Start stopwatch

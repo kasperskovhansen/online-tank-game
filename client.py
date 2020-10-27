@@ -68,11 +68,11 @@ class Game():
         # Players
         free_spot = self.level.get_free_spot(False)
         if free_spot:
-            self.player1 = Player("red", *free_spot, 0, "Karo")
+            self.player1 = Player("red", *free_spot, self.bullets_list, 0, "Skalle Falde")
             self.players_list.add(self.player1)
         free_spot = self.level.get_free_spot(False)
         if free_spot:
-            self.player2 = Player("blue", *free_spot, 1, "Kapper")
+            self.player2 = Player("blue", *free_spot, self.bullets_list, 1, "Kapper")
             self.players_list.add(self.player2)
 
     # Draw
@@ -110,9 +110,10 @@ class Game():
 
     def player_shoot(self, player):
         print("shoot {}".format(player))
-        bullet = player.shoot()
-        if bullet:
-            self.bullets_list.add(bullet)    
+        bullets = player.shoot()
+        if bullets:
+            for bullet in bullets:
+                self.bullets_list.add(bullet)    
 
     # Main loop
     def main(self):    
@@ -143,10 +144,14 @@ class Game():
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_SPACE and self.player1.shooting:                       
                         self.player1.shooting = False
+                        if self.player1.power_up["should_explode"] == 2:
+                            self.player1.power_up["should_explode"] = 3
                     elif event.key == pygame.K_m and self.player2.shooting:
                         self.player2.shooting = False
+                        if self.player2.power_up["should_explode"] == 2:
+                            self.player2.power_up["should_explode"] = 3
             # Add power up
-            if pygame.time.get_ticks() - power_up_ticks > 3000:
+            if pygame.time.get_ticks() - power_up_ticks > 500:
                 spot = self.level.get_free_spot()
                 if spot:
                     self.power_up_list.add(PowerUp(*spot))
@@ -158,7 +163,6 @@ class Game():
                 maze_solve_end = self.level.field_from_pos([self.player2.rect.centerx, self.player2.rect.centery])
 
                 self.level.level_list_path = maze_copy(self.level.level_list_clean)         
-                print(maze_solve_start, maze_solve_end)       
                 self.steps = maze_solve(maze_copy(self.level.level_list_clean), maze_solve_start, maze_solve_end)                
                 maze_solve_ticks = pygame.time.get_ticks()
 

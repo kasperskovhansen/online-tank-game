@@ -14,8 +14,10 @@ class Bullet(pygame.sprite.Sprite):
         self.x_pos = 0
         self.y_pos = 0
         self.old_x = x
-        self.old_y = y
+        self.old_y = y        
         self.ang = ang
+        if "bullet_spread" in self.power_up:
+            self.ang += random.random() * self.power_up["bullet_spread"] - self.power_up["bullet_spread"] // 2
         self.vel = self.power_up["bullet_speed"]
         self.start_ticks = pygame.time.get_ticks()
         self.last_not_colliding = [self.x_pos, self.y_pos] 
@@ -23,7 +25,13 @@ class Bullet(pygame.sprite.Sprite):
         self.tank_id = tank_id
         self.firing = True
             
-            
+    def explode(self):
+        print("Explode!!!")    
+        frags = []       
+        for f in range(self.power_up["fragments"]):
+            print("create frag")
+            frags.append(Bullet(self.rect.centerx + cos((self.ang + random.randint(0, 360))*pi/180) * 15, self.rect.centery - + sin(self.ang*pi/180) * 15, self.ang, self.tank_id, get_type(3)))
+        return frags
  
     # Set new coordinates
     def set_coords(self, x, y):
@@ -33,9 +41,11 @@ class Bullet(pygame.sprite.Sprite):
     # Update position handling player hits and wall rebounce
     def update(self, walls_list, players_list):
         # Kill if time has run out
+        this_player = None
         if pygame.time.get_ticks() - self.start_ticks > self.power_up["bullet_lifespan"]:
             for player in players_list:
                 if player.tank_id == self.tank_id:
+                    this_player = player
                     if player.power_up["type"] == self.power_up["type"]:
                         if player.power_up["bullet_refill"] and player.power_up["max_bullets"] - player.power_up["num_bullets"] > 0:
                             player.power_up["num_bullets"] += 1
@@ -43,7 +53,10 @@ class Bullet(pygame.sprite.Sprite):
                             player.power_up["num_bullets_destroyed"] += 1
                             if player.power_up["num_bullets_destroyed"] == player.power_up["max_bullets"]:
                                 player.power_up = get_type(0)                        
-            self.kill()
+            if self.power_up["type"] == "bomb":
+                this_player.detonate_bomb()
+            else:
+                self.kill()
 
         # Calculate new coords and move
         self.old_x = self.old_x + self.x_pos
@@ -72,6 +85,8 @@ class Bullet(pygame.sprite.Sprite):
             print("Firing sequence over")
 
         # Rebounce
+        if self.power_up["type"] == "fragment":
+            return
         wall_hit_list = pygame.sprite.spritecollide(self, walls_list, False)   
         if len(wall_hit_list) == 0:
             self.last_not_colliding = [self.rect.centerx, self.rect.centery]     

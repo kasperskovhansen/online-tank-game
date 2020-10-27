@@ -20,7 +20,7 @@ faktisk_lige_er_død.set_volume(1)
 
 class Player(pygame.sprite.Sprite):
     # Setup
-    def __init__(self, color, x, y, level_spot, tank_id, username):
+    def __init__(self, color, x, y, level_spot, bullets_list, tank_id, username):
         super().__init__()       
         self.tank_image = None 
 
@@ -72,6 +72,9 @@ class Player(pygame.sprite.Sprite):
         self.visible = True
         self.maze_coords = [0,0]
         self.power_up = get_type(0)
+        self.current_bullet = None
+        self.bullets_to_return = []
+        self.bullets_list = bullets_list
 
     # Network multiplayer stuff
     def parse_changes(self, encoded_changes):
@@ -133,7 +136,7 @@ class Player(pygame.sprite.Sprite):
 
     # Fire a new bullet
     def shoot(self):
-        print("Player: self.power_up: {}".format(self.power_up))
+        # print("Player: self.power_up: {}".format(self.power_up))
         if self.dying:
             return
         if self.power_up["bullets_rpm"] and not self.power_up["bullets_timer"]:    
@@ -143,13 +146,34 @@ class Player(pygame.sprite.Sprite):
                 return None
         # Only fire if player has not fired all rounds
 
-        if self.power_up["num_bullets"] > 0 and self.hit_by == None:
-            self.power_up["num_bullets"] -= 1
-            self.power_up["bullets_timer"] = pygame.time.get_ticks()
-            bullet = Bullet(self.rect.centerx + cos(self.ang*pi/180) * 15, self.rect.centery - + sin(self.ang*pi/180) * 15, self.ang, self.tank_id, self.power_up)                
-            return bullet
-    
+        if self.hit_by == None:
+            if self.power_up["num_bullets"] > 0:
+                self.power_up["num_bullets"] -= 1
+                self.power_up["bullets_timer"] = pygame.time.get_ticks()
+                self.current_bullet = Bullet(self.rect.centerx + cos(self.ang*pi/180) * 15, self.rect.centery - + sin(self.ang*pi/180) * 15, self.ang, self.tank_id, self.power_up)                
+                return [self.current_bullet]
+                # Return fragments right
+            elif self.power_up["fragments"] > 0 and self.power_up["should_explode"] == 3:
+                if self.current_bullet:
+                    self.detonate_bomb()      
+                if len(self.bullets_to_return) > 0:
+                    should_return = self.bullets_to_return
+                    self.bullets_to_return = []
+                    return should_return              
         return None
+
+    def detonate_bomb(self):
+        print("Detonate bomb")
+        self.power_up = get_type(0)
+        self.shooting = False
+        fragments = self.current_bullet.explode()
+        print(fragments)
+        self.current_bullet.kill()
+        self.current_bullet = None
+        self.bullets_to_return.append(fragments)
+        for bullet in fragments:
+            self.bullets_list.add(bullet)
+        return fragments
 
     def explode(self):       
         to_return = None
