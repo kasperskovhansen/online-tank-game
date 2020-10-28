@@ -34,7 +34,7 @@ def get_type(power_up_type):
             "bullets_rpm": False,
             "bullets_timer": None,
             "bullets_spread": 0,
-            "fragments": 30,
+            "fragments": 1000,
             "should_explode": 2,
         },
         2: {
@@ -53,23 +53,43 @@ def get_type(power_up_type):
             "bullets_spread": 2,
             "fragments": 0,
             "should_explode": 1,
-        },
+        },        
         3: {
+            "type": "missile",
+            "num_bullets": 1,
+            "num_bullets_destroyed": 0,
+            "max_bullets": 1,
+            "bullet_spread": 0,
+            "bullet_lifespan": 15000,
+            "bullet_refill": False,
+            "bullet_size": 10,
+            "bullet_speed": 4.5,
+            "bullets_rpm": False,
+            "bullets_timer": None,
+            "bullets_spread": 0,
+            "fragments": 0,
+            "should_explode": 1,
+            "steps": [],
+            "homing_off_time": 2000,
+            "homing": False
+        },
+        4: {
             "type": "fragment",
             "num_bullets": 1,
             "num_bullets_destroyed": 0,
             "max_bullets": 1,
             "bullet_spread": 360,
-            "bullet_lifespan": 10000,
+            "bullet_lifespan": 5000,
             "bullet_refill": False,
             "bullet_size": 5,
-            "bullet_speed": 4,
-            "bullets_rpm": 400,
+            "bullet_speed": 7,
+            "bullets_rpm": False,
             "bullets_timer": None,
             "bullets_spread": 360,
             "fragments": 0,
             "should_explode": 1,
-        }
+            "frag_speed": 4,
+        },
     }
     if power_up_type == "all":
         return types
@@ -81,13 +101,15 @@ class PowerUp(pygame.sprite.Sprite):
     def __init__(self, x, y, level_spot):
         super().__init__()
         self.image = pygame.Surface((10, 10))
-        self.type = random.randint(1, 2)
+        self.type = random.randint(1, 3)
 
         self.color = (200, 200, 200)
         if get_type(self.type)["type"] == "bomb":
             self.color = (200, 0, 200)
         if get_type(self.type)["type"] == "minigun":
             self.color = (0, 200, 200)        
+        if get_type(self.type)["type"] == "missile":
+            self.color = (0, 200, 0)        
 
         self.image.fill(self.color)
         self.rect = self.image.get_rect()

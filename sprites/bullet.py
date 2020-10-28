@@ -5,38 +5,50 @@ import random
 
 class Bullet(pygame.sprite.Sprite):
     # Setup
-    def __init__(self, x, y, ang, tank_id, power_up):
+    def __init__(self, x, y, ang, tank_id, power_up, sprite_groups):
         super().__init__()        
         self.power_up = power_up   
-        self.image = pygame.Surface((self.power_up["bullet_size"], self.power_up["bullet_size"]))
-        self.image.fill((0,0,0))
+        self.bullet_image = None
+        if self.power_up["type"] == "missile":
+            self.bullet_image = pygame.image.load("assets/power_ups/missile_red.png")
+            self.bullet_image = pygame.transform.scale(self.bullet_image, (20, 10))
+            self.image = pygame.transform.rotate(self.bullet_image, 0)     
+        else:
+            self.image = pygame.Surface((self.power_up["bullet_size"], self.power_up["bullet_size"]))
+            self.image.fill((0,0,0))        
         self.rect = self.image.get_rect()   
         self.x_pos = 0
         self.y_pos = 0
         self.old_x = x
         self.old_y = y        
         self.ang = ang
+        self.rect_coords = None
         if "bullet_spread" in self.power_up:
             self.ang += random.random() * self.power_up["bullet_spread"] - self.power_up["bullet_spread"] // 2
         self.vel = self.power_up["bullet_speed"]
+        if "frag_speed" in self.power_up:
+            self.vel += random.random() * self.power_up["frag_speed"] - self.power_up["frag_speed"] // 2
         self.start_ticks = pygame.time.get_ticks()
         self.last_not_colliding = [self.x_pos, self.y_pos] 
         self.mask = pygame.mask.from_surface(self.image.convert_alpha())
         self.tank_id = tank_id
         self.firing = True
+        self.sprite_groups = sprite_groups
             
     def explode(self):
         print("Explode!!!")    
-        frags = []       
         for f in range(self.power_up["fragments"]):
-            print("create frag")
-            frags.append(Bullet(self.rect.centerx + cos((self.ang + random.randint(0, 360))*pi/180) * 15, self.rect.centery - + sin(self.ang*pi/180) * 15, self.ang, self.tank_id, get_type(3)))
-        return frags
+            self.sprite_groups['bullets_list'].add(Bullet(self.rect.centerx + cos((self.ang + random.randint(0, 360))*pi/180) * 15, self.rect.centery - + sin(self.ang*pi/180) * 15, self.ang, self.tank_id, get_type(4), self.sprite_groups))
+        # return frags
  
     # Set new coordinates
     def set_coords(self, x, y):
         self.rect.centerx = x
         self.rect.centery = y     
+
+    def polar_to_rect(self):
+        pass
+    
 
     # Update position handling player hits and wall rebounce
     def update(self, walls_list, players_list):
@@ -56,16 +68,18 @@ class Bullet(pygame.sprite.Sprite):
             if self.power_up["type"] == "bomb":
                 this_player.detonate_bomb()
             else:
-                self.kill()
-
+                self.kill()            
+        elif self.power_up["type"] == "missile" and pygame.time.get_ticks() - self.power_up["bullets_timer"] > self.power_up["homing_off_time"]:
+            self.power_up["homing"] = True
         # Calculate new coords and move
         self.old_x = self.old_x + self.x_pos
         self.old_y = self.old_y - self.y_pos
         self.x_pos = cos(self.ang*pi/180) * self.vel
-        self.y_pos = sin(self.ang*pi/180) * self.vel        
+        self.y_pos = sin(self.ang*pi/180) * self.vel  
+        self.image = pygame.transform.rotate(self.bullet_image, self.ang)
         self.rect = self.image.get_rect()
         self.set_coords(self.old_x + self.x_pos, self.old_y - self.y_pos)      
-        self.mask = pygame.mask.from_surface(self.image.convert_alpha())
+        self.mask = pygame.mask.from_surface(self.image.convert_alpha())        
 
         # Don't kill player if bullet hasn't left shooter yet
         firing_seq_over = True
@@ -85,12 +99,13 @@ class Bullet(pygame.sprite.Sprite):
             print("Firing sequence over")
 
         # Rebounce
-        if self.power_up["type"] == "fragment":
-            return
         wall_hit_list = pygame.sprite.spritecollide(self, walls_list, False)   
         if len(wall_hit_list) == 0:
             self.last_not_colliding = [self.rect.centerx, self.rect.centery]     
         for wall in wall_hit_list:            
+            if self.power_up["type"] == "fragment":
+                # self.vel = 0
+                self.kill()
             if self.x_pos > 0:
                 if self.last_not_colliding[0] < wall.rect.left and self.rect.right > wall.rect.left:
                     self.ang -= 180 + 2 * (self.ang % 180)                    

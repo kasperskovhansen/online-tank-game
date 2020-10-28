@@ -30,13 +30,20 @@ def directions(maze, pos, check_for=['1'], inverse=True, steps=2):
         return dirs_inverse
     return dirs
 
-def maze_solve(maze, start_pos, end_pos):          
+def maze_solve(maze, start_pos, end_positions):          
     
     global should_break      
-    if start_pos[0] == None or start_pos[1] == None or end_pos[0] == None or end_pos[1] == None or start_pos == end_pos:
+    if start_pos[0] == None:
         return False
     maze[start_pos[0]][start_pos[1]] = 'O'
-    maze[end_pos[0]][end_pos[1]] = 'X'
+    at_least_one_x = False
+    for end_pos in end_positions:
+        if end_pos[0] == None or end_pos[1] == None:
+            continue
+        at_least_one_x = True
+        maze[end_pos[0]][end_pos[1]] = 'X'
+    if not at_least_one_x:
+        return False
     
     # for r in range(len(maze)):  # Print the maze we are working with
     #     line = ''
@@ -98,7 +105,8 @@ def maze_solve(maze, start_pos, end_pos):
         steps.insert(0, cell[0])   
         idx = cell[1] 
        
-    return steps[1:-1]
+    print(steps)
+    return steps[2:]
 
 
 # start_time_gen = datetime.now()  # Start stopwatch

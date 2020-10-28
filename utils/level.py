@@ -76,10 +76,10 @@ class Level():
                     else:
                         col_w = self.w_w                    
                                     
-                    if col_x <= pos[0] and pos[0] <= col_x + col_w:                        
+                    if col_x <= pos[0] and pos[0] < col_x + col_w:                        
                         field_x = c
                     col_x += col_w
-            if line_y <= pos[1] and pos[1] <= line_y + row_h:                
+            if line_y <= pos[1] and pos[1] < line_y + row_h:                
                 field_y = l
                 break
             line_y += row_h
@@ -88,7 +88,7 @@ class Level():
 
     def pos_from_field(self, field):
         x = field[1]
-        y = field[0]
+        y = field[0]        
 
         x_pos = self.left_gap
         y_pos = self.top_gap

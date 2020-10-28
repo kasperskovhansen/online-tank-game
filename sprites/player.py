@@ -20,7 +20,7 @@ faktisk_lige_er_død.set_volume(1)
 
 class Player(pygame.sprite.Sprite):
     # Setup
-    def __init__(self, color, x, y, level_spot, bullets_list, tank_id, username):
+    def __init__(self, color, x, y, level_spot, sprite_groups, tank_id, username):
         super().__init__()       
         self.tank_image = None 
 
@@ -71,10 +71,10 @@ class Player(pygame.sprite.Sprite):
         self.play_death_sound_step = None
         self.visible = True
         self.maze_coords = [0,0]
-        self.power_up = get_type(0)
+        self.power_up = get_type(3)
         self.current_bullet = None
         self.bullets_to_return = []
-        self.bullets_list = bullets_list
+        self.sprite_groups = sprite_groups
 
     # Network multiplayer stuff
     def parse_changes(self, encoded_changes):
@@ -118,9 +118,9 @@ class Player(pygame.sprite.Sprite):
         self.encoded_changes["ang"] = self.ang
 
     # Move player to new position and update afterwards
-    def move(self, walls_list, bullets_list, power_up_list):
+    def move(self):
         if not self.hit_by == None:
-            return self.update(walls_list, bullets_list, power_up_list)
+            return self.update()
         keys = pygame.key.get_pressed()
         self.speed(keys)
         self.turn(keys)
@@ -132,7 +132,7 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image.convert_alpha())
 
-        return self.update(walls_list, bullets_list, power_up_list)
+        return self.update()
 
     # Fire a new bullet
     def shoot(self):
@@ -140,9 +140,9 @@ class Player(pygame.sprite.Sprite):
         if self.dying:
             return
         if self.power_up["bullets_rpm"] and not self.power_up["bullets_timer"]:    
-            self.power_up["bullets_timer"] = pygame.time.get_ticks()        
+            self.power_up["bullets_timer"] = pygame.time.get_ticks()
         elif self.power_up["bullets_rpm"] and self.power_up["bullets_timer"]:
-            if not pygame.time.get_ticks() - self.power_up["bullets_timer"] > 60 / self.power_up["bullets_rpm"] * 1000:
+            if not pygame.time.get_ticks() - self.power_up["bullets_timer"] > 60 / self.power_up["bullets_rpm"] * 1000:                
                 return None
         # Only fire if player has not fired all rounds
 
@@ -150,8 +150,9 @@ class Player(pygame.sprite.Sprite):
             if self.power_up["num_bullets"] > 0:
                 self.power_up["num_bullets"] -= 1
                 self.power_up["bullets_timer"] = pygame.time.get_ticks()
-                self.current_bullet = Bullet(self.rect.centerx + cos(self.ang*pi/180) * 15, self.rect.centery - + sin(self.ang*pi/180) * 15, self.ang, self.tank_id, self.power_up)                
-                return [self.current_bullet]
+                self.current_bullet = Bullet(self.rect.centerx + cos(self.ang*pi/180) * 15, self.rect.centery - + sin(self.ang*pi/180) * 15, self.ang, self.tank_id, self.power_up, self.sprite_groups)                
+                self.sprite_groups['bullets_list'].add(self.current_bullet)
+                return
                 # Return fragments right
             elif self.power_up["fragments"] > 0 and self.power_up["should_explode"] == 3:
                 if self.current_bullet:
@@ -166,14 +167,14 @@ class Player(pygame.sprite.Sprite):
         print("Detonate bomb")
         self.power_up = get_type(0)
         self.shooting = False
-        fragments = self.current_bullet.explode()
-        print(fragments)
+        self.current_bullet.explode()
+        # print(fragments)
         self.current_bullet.kill()
         self.current_bullet = None
-        self.bullets_to_return.append(fragments)
-        for bullet in fragments:
-            self.bullets_list.add(bullet)
-        return fragments
+        # self.bullets_to_return.append(fragments)
+        # for bullet in fragments:
+        #     self.sprite_groups['bullets_list'].add(bullet)
+        return
 
     def explode(self):       
         to_return = None
@@ -202,7 +203,7 @@ class Player(pygame.sprite.Sprite):
         return to_return
 
     # Update pos if not hitting a wall or hit by bullet
-    def update(self, walls_list, bullets_list, power_up_list):
+    def update(self):
         # Check if hit by a bullet
         if self.hit_by != None or self.play_death_sound_step != None:
             return self.explode()
@@ -212,7 +213,7 @@ class Player(pygame.sprite.Sprite):
         self.rect.centery = self.old_y - self.y_pos             
 
         # If move wasn't allowed, move back
-        wall_hit_list = pygame.sprite.spritecollide(self, walls_list, False, collided=pygame.sprite.collide_mask)        
+        wall_hit_list = pygame.sprite.spritecollide(self, self.sprite_groups['walls_list'], False, collided=pygame.sprite.collide_mask)        
         if len(wall_hit_list) == 0:
             self.last_not_colliding = [self.rect.centerx, self.rect.centery]
         for wall in wall_hit_list:
@@ -222,10 +223,10 @@ class Player(pygame.sprite.Sprite):
             self.old_y = self.last_not_colliding[1]
 
         if self.power_up["type"] == "normal":
-            power_up_hit_list = pygame.sprite.spritecollide(self, power_up_list, False, collided=pygame.sprite.collide_mask)        
+            power_up_hit_list = pygame.sprite.spritecollide(self, self.sprite_groups['power_up_list'], False, collided=pygame.sprite.collide_mask)        
             for power_up in power_up_hit_list:
                 self.power_up = power_up.types[power_up.type]                                
-                print("Hit power_up: {}".format(self.power_up["type"]))
+                # print("Hit power_up: {}".format(self.power_up["type"]))
                 level_spot = power_up.level_spot
                 power_up.kill()
                 return({"spot_free": level_spot})
