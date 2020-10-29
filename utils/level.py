@@ -108,7 +108,7 @@ class Level():
 
     def level_loader(self):
         # level = self.levels[self.level]
-        self.level = maze_gen(x_cells = self.maze_w, y_cells = self.maze_h, passages = 70)             
+        self.level = maze_gen(x_cells = self.maze_w, y_cells = self.maze_h, passages = 35)             
         print(self.level)
         for row in self.level:
             print("Row:")

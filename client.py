@@ -16,7 +16,7 @@ class Game():
         pygame.init()
         self.width = 1020
         self.height = 680
-        self.screen = pygame.display.set_mode((self.width, self.height))
+        self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
         pygame.display.set_caption("Online Tank Game")
 
         self.players_list = None
@@ -185,7 +185,6 @@ class Game():
         pygame.display.flip()
 
     def player_shoot(self, player):
-        print("shoot {}".format(player))
         bullets = player.shoot()
         if bullets:
             for bullet in bullets:
@@ -270,6 +269,6 @@ class Game():
 
             # Draw self.screen with new changes
             self.redraw_window(self.screen, [self.player1, self.player2])
-            clock.tick(60)
+            clock.tick(30)
 
 game = Game()
