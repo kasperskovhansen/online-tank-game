@@ -43,7 +43,7 @@ class Player(pygame.sprite.Sprite):
         self.anim_frame = 0
 
         # Setup
-        self.tank_image = pygame.transform.scale(self.tank_image, (25, 18))
+        self.tank_image = pygame.transform.scale(self.tank_image, (45, 32))
         self.image = pygame.transform.rotate(self.tank_image, 0)     
         self.image_clean = self.image.copy()  
         self.rect = self.image.get_rect()   
@@ -71,7 +71,7 @@ class Player(pygame.sprite.Sprite):
         self.play_death_sound_step = None
         self.visible = True
         self.maze_coords = [0,0]
-        self.power_up = get_type(3)
+        self.power_up = get_type(0)
         self.current_bullet = None
         self.bullets_to_return = []
         self.sprite_groups = sprite_groups
@@ -85,18 +85,18 @@ class Player(pygame.sprite.Sprite):
     def speed(self, keys):
         if self.tank_id == 0:
             if keys[pygame.K_w]:
-                self.vel = 4
+                self.vel = 3.5
             elif keys[pygame.K_s]:
-                self.vel = -3
+                self.vel = -2.5
             else:
                 if not self.vel:
                     return
                 self.vel = 0
         elif self.tank_id == 1:
             if keys[pygame.K_UP]:
-                self.vel = 4
+                self.vel = 3.5
             elif keys[pygame.K_DOWN]:
-                self.vel = -3
+                self.vel = -2.5
             else:
                 if not self.vel:
                     return
@@ -107,14 +107,14 @@ class Player(pygame.sprite.Sprite):
     def turn(self, keys):
         if self.tank_id == 0:
             if keys[pygame.K_a]:
-                self.ang += 9
+                self.ang += 6
             elif keys[pygame.K_d]:
-                self.ang -= 9     
+                self.ang -= 6     
         elif self.tank_id == 1:
             if keys[pygame.K_LEFT]:
-                self.ang += 9
+                self.ang += 6
             elif keys[pygame.K_RIGHT]:
-                self.ang -= 9    
+                self.ang -= 6    
         self.encoded_changes["ang"] = self.ang
 
     # Move player to new position and update afterwards
@@ -246,7 +246,7 @@ class Player(pygame.sprite.Sprite):
             self.play_death_sound_step = "play_username_done"
             pygame.mixer.music.load('sounds/usernames/' + str(self.username) + '.mp3')
             pygame.mixer.music.set_endevent( pygame.USEREVENT )
-            pygame.mixer.music.set_volume(0.8)
+            pygame.mixer.music.set_volume(1)
             pygame.mixer.music.play(0)
             return {"tank_id": self.tank_id, "next_step": "play_faktisk_lige_er_død"}
         elif self.play_death_sound_step == "play_faktisk_lige_er_død":

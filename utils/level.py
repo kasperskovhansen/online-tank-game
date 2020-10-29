@@ -30,12 +30,12 @@ class Level():
         self.spots = []
 
         # Setup dimensions of grid
-        self.maze_w = 16
-        self.maze_h = 8
+        self.maze_w = 10
+        self.maze_h = 6
 
         # Walls
-        self.w_w = 5
-        self.w_h = 55
+        self.w_w = 8
+        self.w_h = 90
         self.top_gap = 50
         self.left_gap = 12
         

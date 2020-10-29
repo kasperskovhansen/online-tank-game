@@ -10,11 +10,11 @@ def get_type(power_up_type):
             "num_bullets": 1,
             "num_bullets_destroyed": 0,
             "can_take_new": True,
-            "max_bullets": 1,
-            "bullet_lifespan": 2000,
+            "max_bullets": 3,
+            "bullet_lifespan": 10000,
             "bullet_refill": True,
-            "bullet_size": 4,
-            "bullet_speed": 6,
+            "bullet_size": [8, 8],
+            "bullet_speed": 5,
             "bullets_rpm": False,
             "bullets_timer": None,
             "bullets_spread": 0,
@@ -27,14 +27,14 @@ def get_type(power_up_type):
             "num_bullets_destroyed": 0,
             "can_take_new": False,
             "max_bullets": 1,
-            "bullet_lifespan": 5000,
+            "bullet_lifespan": 10000,
             "bullet_refill": False,
-            "bullet_size": 8,
-            "bullet_speed": 4,
+            "bullet_size": [20, 20],
+            "bullet_speed": 3.5,
             "bullets_rpm": False,
             "bullets_timer": None,
             "bullets_spread": 0,
-            "fragments": 1000,
+            "fragments": 70,
             "should_explode": 2,
         },
         2: {
@@ -46,8 +46,8 @@ def get_type(power_up_type):
             "bullet_spread": 10,
             "bullet_lifespan": 3000,
             "bullet_refill": False,
-            "bullet_size": 2,
-            "bullet_speed": 7,
+            "bullet_size": [5, 5],
+            "bullet_speed": 6,
             "bullets_rpm": 400,
             "bullets_timer": None,
             "bullets_spread": 2,
@@ -62,7 +62,7 @@ def get_type(power_up_type):
             "bullet_spread": 0,
             "bullet_lifespan": 15000,
             "bullet_refill": False,
-            "bullet_size": 10,
+            "bullet_size": [35, 25],
             "bullet_speed": 4.5,
             "bullets_rpm": False,
             "bullets_timer": None,
@@ -71,7 +71,8 @@ def get_type(power_up_type):
             "should_explode": 1,
             "steps": [],
             "homing_off_time": 2000,
-            "homing": False
+            "homing": False,
+            "target": "off"
         },
         4: {
             "type": "fragment",
@@ -79,16 +80,17 @@ def get_type(power_up_type):
             "num_bullets_destroyed": 0,
             "max_bullets": 1,
             "bullet_spread": 360,
-            "bullet_lifespan": 5000,
+            "bullet_lifespan": 15000,
             "bullet_refill": False,
-            "bullet_size": 5,
-            "bullet_speed": 7,
+            "bullet_size": [8, 8],
+            "bullet_speed": 4,
             "bullets_rpm": False,
             "bullets_timer": None,
             "bullets_spread": 360,
             "fragments": 0,
             "should_explode": 1,
             "frag_speed": 4,
+            "rotation": 0,
         },
     }
     if power_up_type == "all":
@@ -102,21 +104,18 @@ class PowerUp(pygame.sprite.Sprite):
         super().__init__()
         self.image = pygame.Surface((10, 10))
         self.type = random.randint(1, 3)
+        self.types = get_type("all")
 
-        self.color = (200, 200, 200)
-        if get_type(self.type)["type"] == "bomb":
-            self.color = (200, 0, 200)
-        if get_type(self.type)["type"] == "minigun":
-            self.color = (0, 200, 200)        
-        if get_type(self.type)["type"] == "missile":
-            self.color = (0, 200, 0)        
-
-        self.image.fill(self.color)
+        # self.color = (200, 200, 200)
+        self.image = pygame.image.load("assets/power_ups/power_up_" + self.types[self.type]["type"] + ".png")
+        self.image = pygame.transform.scale(self.image, (40, 40))
+        self.image = pygame.transform.rotate(self.image, (random.randint(0, 2) - 1) * 15)
+        
+        # self.image.fill(self.color)
         self.rect = self.image.get_rect()
         self.rect.centerx = x
         self.rect.centery = y
         self.level_spot = level_spot
-        self.types = get_type("all")
         self.mask = pygame.mask.from_surface(self.image.convert_alpha())
 
     # Draw power up

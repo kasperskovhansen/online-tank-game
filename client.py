@@ -15,7 +15,7 @@ class Game():
         # Setup
         pygame.init()
         self.width = 1020
-        self.height = 560
+        self.height = 680
         self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Online Tank Game")
 
@@ -71,11 +71,11 @@ class Game():
         # Players
         free_spot = self.level.get_free_spot(False)
         if free_spot:
-            self.player1 = Player("red", *free_spot, sprite_groups, 0, "Skalle Falde")
+            self.player1 = Player("red", *free_spot, sprite_groups, 0, "Mads")
             self.players_list.add(self.player1)
         free_spot = self.level.get_free_spot(False)
         if free_spot:
-            self.player2 = Player("blue", *free_spot, sprite_groups, 1, "Kapper")
+            self.player2 = Player("blue", *free_spot, sprite_groups, 1, "Kasper")
             self.players_list.add(self.player2)
 
     def calc_acc_vec(self, bullet_pos, step_pos, acc, s):
@@ -97,27 +97,27 @@ class Game():
         for bullet in self.bullets_list:
             if bullet.power_up['type'] == 'missile' and bullet.power_up['homing']:
                 if 'steps' in bullet.power_up:
-                    prev_step = None
                     bullet_vec = [bullet.x_pos, bullet.y_pos]
-                    old_bullet_vec = bullet_vec.copy()
                     bullet_pos = [bullet.rect.centerx, bullet.rect.centery]
-                    # print("Rect ({}, {})".format(*bullet_vec))
                     acc = [0, 0]                    
+                    target_player = None
                     if bullet.power_up['steps'] == [] or bullet.power_up['steps'] == False or len(bullet.power_up['steps']) <= 1:
                         least_len_vec = None
-                        step_pos = [0, 0]
                         for player in self.players_list:
                             player_pos = [player.rect.centerx, player.rect.centery]
                             bullet_player_vec = vector.subtract(player_pos, bullet_pos)
                             len_bullet_player_vec = vector.len_vec(bullet_player_vec)                            
                             if least_len_vec == None:
-                                step_pos = player_pos      
+                                target_player = player      
                                 least_len_vec = len_bullet_player_vec                    
                             else:
                                 if len_bullet_player_vec < least_len_vec:                                                                      
-                                    step_pos = player_pos       
+                                    target_player = player  
                                     least_len_vec = len_bullet_player_vec                                                                                 
-                                
+                        
+                        step_pos = [0, 0]                       
+                        if target_player:
+                            step_pos = [target_player.rect.centerx, target_player.rect.centery]
                         acc_add = self.calc_acc_vec(bullet_pos.copy(), step_pos.copy(), acc.copy(), 0)
                         acc = vector.add(acc, acc_add)             
                     else:
@@ -127,6 +127,8 @@ class Game():
                                 step_pos = self.level.pos_from_field(step)
                                 acc_add = self.calc_acc_vec(bullet_pos.copy(), step_pos.copy(), acc.copy(), s)
                                 acc = vector.add(acc, acc_add)
+                            else:
+                                break
                             s += 1
 
 
@@ -138,7 +140,18 @@ class Game():
                             #     pygame.draw.rect(screen, [200,0,0], [pos_1[0] + 4, pos_1[1] +  + 4, pos_2[0] - pos_1[0], pos_2[1] - pos_1[1]])
                             # prev_step = step
                             # self.level.level_list_path[step[0]][step[1]] = '#'
-                    # acc * 
+                    # acc *                     
+                        player1_pos = self.level.field_from_pos([self.player1.rect.centerx, self.player1.rect.centery])
+                        player2_pos = self.level.field_from_pos([self.player2.rect.centerx, self.player2.rect.centery])
+                        end_pos = bullet.power_up['steps'][-1]
+                        if end_pos == player1_pos:
+                            target_player = self.player1
+                        elif end_pos == player2_pos:
+                            target_player = self.player2
+
+                    if target_player:
+                        step_pos = [target_player.rect.centerx, target_player.rect.centery]
+                        bullet.power_up["target"] = target_player.tank_id
                     acc = vector.dot(acc, 10)
                     bullet_vec = vector.add(bullet_vec, acc)
 
@@ -147,31 +160,17 @@ class Game():
                         bullet_vec = vector.dot(bullet_vec, bullet.vel / new_vec_speed)                  
                     bullet.x_pos = bullet_vec[0]
                     bullet.y_pos = -bullet_vec[1]
-                    
-                    print("bullet_vec {}".format(bullet_vec))
-                    print("bullet [{}, {}]".format(bullet.x_pos, bullet.y_pos))
+                                        
                     if bullet.x_pos == 0:
-                        print("bullet.x_pos == 0")
                         bullet.x_pos += 0.1
                     if bullet.y_pos == 0:
-                        print("bullet.y_pos == 0")
                         bullet.y_pos += 0.1
                     if bullet.x_pos < 0 and bullet.y_pos > 0:
-                        print("bullet.x_pos < 0 and bullet.y_pos > 0")
                         bullet.ang = math.atan(bullet.y_pos / bullet.x_pos) * 180 / math.pi + 180
                     elif bullet.x_pos < 0 and bullet.y_pos < 0:
-                        print("bullet.x_pos < 0 and bullet.y_pos < 0")
                         bullet.ang = math.atan(bullet.y_pos / bullet.x_pos) * 180 / math.pi - 180
                     else:
-                        print("else")
                         bullet.ang = math.atan(bullet.y_pos / bullet.x_pos) * 180 / math.pi
-                    print(bullet.ang)
-
-                    # for r in range(len(self.level.level_list_path)):  # Print the maze we are working with
-                    #     line = ''
-                    #     for c in range(len(self.level.level_list_path[0])):
-                    #         line += str(self.level.level_list_path[r][c])
-                    #     print(line)
                 else:
                     print('Could not solve maze')
 
@@ -180,7 +179,9 @@ class Game():
             if player.visible:
                 player.draw(self.screen)                
         
-        screen.blit(self.game_over_font.render("P1" + str([self.player1.rect.centerx, self.player1.rect.centery]) + str("("+self.player1.power_up["type"] + ")" if self.player1.power_up else "") + ": " + str(self.points[0]) + " P2" + str("(" + self.player2.power_up["type"] + ")" if self.player2.power_up else "") + ": " + str(self.points[1]), 0, (10,10,10)), (50,20))
+        screen.blit(self.game_over_font.render("P1" + str("("+self.player1.power_up["type"] + ")" if self.player1.power_up else "") + ": " + str(self.points[0]), 0, (156, 12, 12)), [50, 20])
+        screen.blit(self.game_over_font.render("P2" + str("("+self.player2.power_up["type"] + ")" if self.player2.power_up else "") + ": " + str(self.points[1]), 0, (15,86,183)), [self.width / 2, 20])
+        
         pygame.display.flip()
 
     def player_shoot(self, player):

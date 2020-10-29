@@ -105,7 +105,6 @@ def maze_solve(maze, start_pos, end_positions):
         steps.insert(0, cell[0])   
         idx = cell[1] 
        
-    print(steps)
     return steps[2:]
 
 

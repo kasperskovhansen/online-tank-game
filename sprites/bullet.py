@@ -8,14 +8,13 @@ class Bullet(pygame.sprite.Sprite):
     def __init__(self, x, y, ang, tank_id, power_up, sprite_groups):
         super().__init__()        
         self.power_up = power_up   
-        self.bullet_image = None
-        if self.power_up["type"] == "missile":
-            self.bullet_image = pygame.image.load("assets/power_ups/missile_red.png")
-            self.bullet_image = pygame.transform.scale(self.bullet_image, (20, 10))
-            self.image = pygame.transform.rotate(self.bullet_image, 0)     
-        else:
-            self.image = pygame.Surface((self.power_up["bullet_size"], self.power_up["bullet_size"]))
-            self.image.fill((0,0,0))        
+        self.bullet_image = None                
+        self.bullet_image = pygame.image.load("assets/power_ups/" + self.power_up["type"] + ".png")
+        self.bullet_image = pygame.transform.scale(self.bullet_image, (self.power_up["bullet_size"][0], self.power_up["bullet_size"][1]))
+        self.image = pygame.transform.rotate(self.bullet_image, 0)        
+            # self.image = pygame.Surface((self.power_up["bullet_size"], self.power_up["bullet_size"]))
+            # self.image.fill((0,0,0))  
+            # self.bullet_image = self.image      
         self.rect = self.image.get_rect()   
         self.x_pos = 0
         self.y_pos = 0
@@ -71,12 +70,24 @@ class Bullet(pygame.sprite.Sprite):
                 self.kill()            
         elif self.power_up["type"] == "missile" and pygame.time.get_ticks() - self.power_up["bullets_timer"] > self.power_up["homing_off_time"]:
             self.power_up["homing"] = True
+            image_name = ""
+            if self.power_up["target"] == 0:
+                image_name = "_red"
+            elif self.power_up["target"] == 1:
+                image_name = "_blue"            
+            self.bullet_image = pygame.image.load("assets/power_ups/missile" + image_name + ".png")
+            self.bullet_image = pygame.transform.scale(self.bullet_image, (self.power_up["bullet_size"][0], self.power_up["bullet_size"][1]))
+            self.image = pygame.transform.rotate(self.bullet_image, 0)     
         # Calculate new coords and move
         self.old_x = self.old_x + self.x_pos
         self.old_y = self.old_y - self.y_pos
         self.x_pos = cos(self.ang*pi/180) * self.vel
         self.y_pos = sin(self.ang*pi/180) * self.vel  
-        self.image = pygame.transform.rotate(self.bullet_image, self.ang)
+        if self.power_up["type"] == "fragment":
+            self.power_up["rotation"] = (self.power_up["rotation"] + self.vel * 4) % 360            
+            self.image = pygame.transform.rotate(self.bullet_image, self.power_up["rotation"])
+        else:
+            self.image = pygame.transform.rotate(self.bullet_image, self.ang)
         self.rect = self.image.get_rect()
         self.set_coords(self.old_x + self.x_pos, self.old_y - self.y_pos)      
         self.mask = pygame.mask.from_surface(self.image.convert_alpha())        
@@ -98,14 +109,18 @@ class Bullet(pygame.sprite.Sprite):
             self.firing = False
             print("Firing sequence over")
 
+        
         # Rebounce
         wall_hit_list = pygame.sprite.spritecollide(self, walls_list, False)   
         if len(wall_hit_list) == 0:
             self.last_not_colliding = [self.rect.centerx, self.rect.centery]     
         for wall in wall_hit_list:            
             if self.power_up["type"] == "fragment":
+                if self.vel > 3:
+                    return
+                else:
+                    self.kill()
                 # self.vel = 0
-                self.kill()
             if self.x_pos > 0:
                 if self.last_not_colliding[0] < wall.rect.left and self.rect.right > wall.rect.left:
                     self.ang -= 180 + 2 * (self.ang % 180)                    
