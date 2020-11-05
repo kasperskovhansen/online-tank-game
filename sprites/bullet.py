@@ -12,9 +12,6 @@ class Bullet(pygame.sprite.Sprite):
         self.bullet_image = pygame.image.load("assets/power_ups/" + self.power_up["type"] + ".png")
         self.bullet_image = pygame.transform.scale(self.bullet_image, (self.power_up["bullet_size"][0], self.power_up["bullet_size"][1]))
         self.image = pygame.transform.rotate(self.bullet_image, 0)        
-            # self.image = pygame.Surface((self.power_up["bullet_size"], self.power_up["bullet_size"]))
-            # self.image.fill((0,0,0))  
-            # self.bullet_image = self.image      
         self.rect = self.image.get_rect()   
         self.x_pos = 0
         self.y_pos = 0
@@ -38,7 +35,6 @@ class Bullet(pygame.sprite.Sprite):
         print("Explode!!!")    
         for f in range(self.power_up["fragments"]):
             self.sprite_groups['bullets_list'].add(Bullet(self.rect.centerx + cos((self.ang + random.randint(0, 360))*pi/180) * 15, self.rect.centery - + sin(self.ang*pi/180) * 15, self.ang, self.tank_id, get_type(4), self.sprite_groups))
-        # return frags
  
     # Set new coordinates
     def set_coords(self, x, y):

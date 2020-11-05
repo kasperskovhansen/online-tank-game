@@ -15,8 +15,8 @@ class Game():
         # Setup
         pygame.init()
         self.width = 1020
-        self.height = 680
-        self.screen = pygame.display.set_mode((self.width, self.height), pygame.FULLSCREEN)
+        self.height = 580
+        self.screen = pygame.display.set_mode((self.width, self.height))
         pygame.display.set_caption("Online Tank Game")
 
         self.players_list = None

@@ -3,7 +3,6 @@ import random
 
 
 def get_type(power_up_type):
-    # types = {0: {"type": "normal", "num_bullets": 1, "bullet_lifespan": 500, "bullet_refill": True, "bullets_rpm": False, "bullets_timer": None, "bullets_spread": 0, "bullet_size": 4}, 1: {"type": "bomb", "num_bullets": 1, "bullet_lifespan": 5000, "bullet_refill": False,
     types = {
         0: {
             "type": "normal",
@@ -60,17 +59,17 @@ def get_type(power_up_type):
             "num_bullets_destroyed": 0,
             "max_bullets": 1,
             "bullet_spread": 0,
-            "bullet_lifespan": 15000,
+            "bullet_lifespan": 25000,
             "bullet_refill": False,
             "bullet_size": [35, 25],
-            "bullet_speed": 4.5,
+            "bullet_speed": 4,
             "bullets_rpm": False,
             "bullets_timer": None,
             "bullets_spread": 0,
             "fragments": 0,
             "should_explode": 1,
             "steps": [],
-            "homing_off_time": 2000,
+            "homing_off_time": 6000,
             "homing": False,
             "target": "off"
         },

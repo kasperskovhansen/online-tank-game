@@ -31,7 +31,7 @@ class Level():
 
         # Setup dimensions of grid
         self.maze_w = 10
-        self.maze_h = 6
+        self.maze_h = 5
 
         # Walls
         self.w_w = 8
@@ -107,7 +107,7 @@ class Level():
         return [x_pos, y_pos]
 
     def level_loader(self):
-        # level = self.levels[self.level]
+        # Load level
         self.level = maze_gen(x_cells = self.maze_w, y_cells = self.maze_h, passages = 35)             
         print(self.level)
         for row in self.level:

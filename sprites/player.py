@@ -163,17 +163,12 @@ class Player(pygame.sprite.Sprite):
                     return should_return              
         return None
 
-    def detonate_bomb(self):
-        print("Detonate bomb")
+    def detonate_bomb(self):        
         self.power_up = get_type(0)
         self.shooting = False
-        self.current_bullet.explode()
-        # print(fragments)
+        self.current_bullet.explode()        
         self.current_bullet.kill()
-        self.current_bullet = None
-        # self.bullets_to_return.append(fragments)
-        # for bullet in fragments:
-        #     self.sprite_groups['bullets_list'].add(bullet)
+        self.current_bullet = None        
         return
 
     def explode(self):       
